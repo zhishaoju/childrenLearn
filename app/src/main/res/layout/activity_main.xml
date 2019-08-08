@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@color/white">
+
+  <FrameLayout
+    android:id="@+id/fragment_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
+  <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_alignParentBottom="true"
+    android:background="@color/white"
+    android:gravity="center_vertical">
+
+    <TextView
+      android:id="@+id/tv_first"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="55dp"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentLeft="true"
+      android:drawableTop="@mipmap/index"
+      android:gravity="center"
+      android:text="首页"
+      android:textColor="@color/main_color"
+      android:textSize="@dimen/font_12"/>
+
+
+    <TextView
+      android:id="@+id/tv_second"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentBottom="true"
+      android:layout_centerHorizontal="true"
+      android:drawableTop="@mipmap/dask2"
+      android:gravity="center"
+      android:text="任务"
+      android:textColor="@color/main_color2"
+      android:textSize="@dimen/font_12"/>
+
+
+    <TextView
+      android:id="@+id/tv_third"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginRight="55dp"
+      android:layout_alignParentBottom="true"
+      android:layout_alignParentRight="true"
+      android:drawableTop="@mipmap/my"
+      android:gravity="center"
+      android:text="我的"
+      android:textColor="@color/main_color2"
+      android:textSize="@dimen/font_12"/>
+
+  </RelativeLayout>
+
+</RelativeLayout>
