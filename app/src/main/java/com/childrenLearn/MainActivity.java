@@ -4,11 +4,17 @@ import static android.Manifest.permission.ACCESS_NETWORK_STATE;
 import static com.childrenLearn.utils.Contants.REQUEST_PERMISSION_CODE;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +26,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,6 +35,17 @@ import com.childrenLearn.fragment.IndexFragment;
 import com.childrenLearn.fragment.SecondFragment;
 import com.childrenLearn.fragment.ThirdFragment;
 import com.childrenLearn.utils.LogUtil;
+import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import fm.jiecao.jcvideoplayer_lib.JCVideoPlayer;
+import java.io.File;
 import java.util.ArrayList;
 
 public class MainActivity extends FragmentActivity {
@@ -70,6 +88,13 @@ public class MainActivity extends FragmentActivity {
     setContentView(R.layout.activity_main);
     ButterKnife.bind(this);
     setTabSelect(0);
+
+    initUniversalImageLoader();
+    //这里将会设置所有播放器的皮肤 | Here the player will set all the skin
+//        JCVideoPlayer.setGlobleSkin(R.color.colorPrimary, R.color.colorAccent, R.drawable.skin_seek_progress,
+//                R.color.bottom_bg, R.drawable.skin_enlarge_video, R.drawable.skin_shrink_video);
+    //这里将会改变所有缩略图的ScaleType | Here will change all thumbnails ScaleType
+    JCVideoPlayer.setThumbImageViewScalType(ImageView.ScaleType.FIT_XY);
   }
 
   @OnClick({R.id.tv_first, R.id.tv_second, R.id.tv_third})
@@ -172,21 +197,22 @@ public class MainActivity extends FragmentActivity {
 
   private void initPermission() {
     String permissions[] = {
-      Manifest.permission.INTERNET,
-      ACCESS_NETWORK_STATE,
-      Manifest.permission.WRITE_SETTINGS,
-      Manifest.permission.ACCESS_WIFI_STATE,
-      Manifest.permission.CHANGE_WIFI_STATE,
-      Manifest.permission.SYSTEM_ALERT_WINDOW,
-      Manifest.permission.CAMERA,
-      Manifest.permission.MODIFY_AUDIO_SETTINGS,
-      Manifest.permission.RECORD_AUDIO,
-      Manifest.permission.WAKE_LOCK,
-      Manifest.permission.WRITE_EXTERNAL_STORAGE,
-      Manifest.permission.READ_PHONE_STATE,
-      Manifest.permission.KILL_BACKGROUND_PROCESSES,
-      Manifest.permission.ACCESS_COARSE_LOCATION,
-      Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.INTERNET,
+        ACCESS_NETWORK_STATE,
+        Manifest.permission.WRITE_SETTINGS,
+        Manifest.permission.ACCESS_WIFI_STATE,
+        Manifest.permission.CHANGE_WIFI_STATE,
+        Manifest.permission.SYSTEM_ALERT_WINDOW,
+        Manifest.permission.CAMERA,
+        Manifest.permission.MODIFY_AUDIO_SETTINGS,
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.WAKE_LOCK,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.KILL_BACKGROUND_PROCESSES,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
     };
 
     ArrayList<String> toApplyList = new ArrayList<String>();
@@ -209,24 +235,64 @@ public class MainActivity extends FragmentActivity {
     // 此处为android 6.0以上动态授权的回调，用户自行实现。
     LogUtil.showDLog(TAG, "onRequestPermissionsResult");
     switch (requestCode) {
-      case REQUEST_PERMISSION_CODE:
-        {
-          boolean allPermissionGranted = true;
-          for (int i = 0; i < grantResults.length; i++) {
-            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
-              allPermissionGranted = false;
-              LogUtil.showELog(TAG, "permission_denied");
-            }
-          }
-          if (!allPermissionGranted) {
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            intent.setData(Uri.parse("package:" + getPackageName()));
-            startActivity(intent);
+      case REQUEST_PERMISSION_CODE: {
+        boolean allPermissionGranted = true;
+        for (int i = 0; i < grantResults.length; i++) {
+          if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+            allPermissionGranted = false;
+            LogUtil.showELog(TAG, "permission_denied");
           }
         }
-        break;
+        if (!allPermissionGranted) {
+          Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+          intent.setData(Uri.parse("package:" + getPackageName()));
+          startActivity(intent);
+        }
+      }
+      break;
       default:
         break;
     }
+  }
+
+  private void initUniversalImageLoader() {
+
+    LogUtil.showDLog(TAG, "initUniversalImageLoader()");
+    DisplayImageOptions options = new DisplayImageOptions.Builder()
+        .showImageOnLoading(new ColorDrawable(Color.parseColor("#f0f0f0")))
+        .resetViewBeforeLoading(true)
+        .cacheInMemory(true)
+        .cacheOnDisk(true)
+        .considerExifParams(true)
+        .imageScaleType(ImageScaleType.EXACTLY_STRETCHED)
+        .bitmapConfig(Bitmap.Config.RGB_565)
+        .build();
+
+    int memClass = ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE))
+        .getMemoryClass();
+    int memCacheSize = 1024 * 1024 * memClass / 8;
+
+    File cacheDir = new File(
+        Environment.getExternalStorageDirectory().getPath() + "/jiecao/cache");
+    if (!cacheDir.exists()) {
+      cacheDir.mkdirs();
+    }
+
+    LogUtil.showDLog(TAG, "cacheDir.exists() = " + cacheDir.exists());
+
+    ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+        .threadPoolSize(3)
+        .threadPriority(Thread.NORM_PRIORITY - 2)
+        .denyCacheImageMultipleSizesInMemory()
+        .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+        .memoryCache(new UsingFreqLimitedMemoryCache(memCacheSize))
+        .memoryCacheSize(memCacheSize)
+        .diskCacheSize(50 * 1024 * 1024)
+        .tasksProcessingOrder(QueueProcessingType.LIFO)
+        .diskCache(new UnlimitedDiskCache(cacheDir))
+        .imageDownloader(new BaseImageDownloader(this, 5 * 1000, 30 * 1000))
+        .defaultDisplayImageOptions(options)
+        .build();
+    ImageLoader.getInstance().init(config);
   }
 }

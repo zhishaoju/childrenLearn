@@ -1,22 +1,42 @@
 package com.childrenLearn.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 import com.childrenLearn.R;
+import com.childrenLearn.activity.ShowVideoActivity;
 import com.childrenLearn.utils.LogUtil;
 
 public class IndexFragment extends BaseFragment {
 
   private static final String TAG = IndexFragment.class.getSimpleName();
 
+  private Unbinder mUnbinder;
+
+  @BindView(R.id.bt_yazi)
+  Button btQiehuan;
+
   @Nullable
   @Override
   public View onCreateView(
       LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_index, container, false);
+    view.findViewById(R.id.bt_yazi).setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        startActivity(new Intent(getActivity(), ShowVideoActivity.class));
+      }
+    });
+    mUnbinder = ButterKnife.bind(this, view);
     return view;
   }
 
@@ -25,7 +45,8 @@ public class IndexFragment extends BaseFragment {
     super.onCreate(savedInstanceState);
   }
 
-  private void initValue() {}
+  private void initValue() {
+  }
 
   @Override
   public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -59,9 +80,11 @@ public class IndexFragment extends BaseFragment {
     LogUtil.showDLog(TAG, "refresh()");
   }
 
-  private void loadMore(int pageNum) {}
+  private void loadMore(int pageNum) {
+  }
 
-  private void initListener() {}
+  private void initListener() {
+  }
 
   private void parseData(String data) {
     LogUtil.showELog(TAG, "parseData(String data) 解析数据data：" + data);
@@ -71,4 +94,21 @@ public class IndexFragment extends BaseFragment {
   public void onDestroyView() {
     super.onDestroyView();
   }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    mUnbinder.unbind();
+  }
+
+//  @OnClick(R.id.bt_yazi)
+//  public void onViewClicked(View view) {
+//    switch (view.getId()) {
+//      case R.id.bt_yazi:
+//        startActivity(new Intent(getActivity(), ShowVideoActivity.class));
+//        break;
+//      default:
+//        break;
+//    }
+//  }
 }

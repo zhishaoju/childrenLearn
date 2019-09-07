@@ -28,4 +28,8 @@ dependencies {
     implementation 'com.jakewharton:butterknife:8.0.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.0.1'
     implementation 'com.squareup.okhttp3:okhttp:3.7.0'
+    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
+
+    implementation project(':jcvideoplayer-lib')
+    implementation project(path: ':jcvideoplayer-lib')
 }
